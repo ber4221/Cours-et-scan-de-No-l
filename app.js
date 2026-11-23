@@ -115,6 +115,21 @@ function newGame() {
   tickInterval = setInterval(renderTimer, 200);
   enableWakeLock();
 }
+// Interrompt immédiatement la partie et ramène à l'accueil.
+// On remet à zéro le temps et les morceaux pour le prochain départ.
+function abandonGame() {
+  if (phase !== 'game') return;
+  closeScanner();
+  stopTicker();
+  releaseWakeLock();
+  found = new Set();
+  deadline = 0;
+  phase = 'home';
+  clearTimeout(toastTimer);
+  $('toast').textContent = '';
+  save();
+  render();
+}
 function lose() {
   if (phase !== 'game') return;
   phase = 'lost';
@@ -305,6 +320,8 @@ async function startWhenCameraReady() {
 $('start-btn').addEventListener('click', startWhenCameraReady);
 $('allow-camera').addEventListener('click', requestCameraPermission);
 $('restart-btn').addEventListener('click', newGame);
+$('abandon-btn').addEventListener('click', abandonGame);
+$('abandon-from-scanner').addEventListener('click', abandonGame);
 $('thanks-btn').addEventListener('click', showClue);
 $('close-scanner').addEventListener('click', closeScanner);
 $('retry-camera').addEventListener('click', async () => {

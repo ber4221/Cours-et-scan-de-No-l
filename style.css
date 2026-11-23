@@ -25,3 +25,11 @@
 .camera-help{font-weight:800;color:#155c50;font-size:13px;line-height:1.42;margin:0 auto;white-space:pre-line}
 .camera-help.error{color:#a42c36}
 @media(max-height:720px){.camera-setup{margin-bottom:12px}.camera-button{min-height:42px}}
+
+/* V3 — quitter une partie en cours sans fermer l'application. */
+.abandon-button{display:inline-block;min-height:40px;margin:1px auto 0;padding:7px 18px;border:2px solid #b8c6bd;border-radius:13px;background:#fffaf2;color:#485e58;font-size:15px;font-weight:900}
+.abandon-button:active{background:#fbe5df}
+.abandon-button:focus-visible,.scanner-abandon:focus-visible{outline:3px solid #ecb451;outline-offset:3px}
+.scanner-actions{display:flex;align-items:center;gap:12px}
+.scanner-abandon{min-height:40px;padding:7px 12px;border:1px solid #ffc7c5;border-radius:11px;background:#9b303c;color:white;font-size:14px;font-weight:900}
+@media(max-height:620px){.abandon-button{min-height:34px;padding:4px 14px}}

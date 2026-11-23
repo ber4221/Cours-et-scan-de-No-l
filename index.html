@@ -36,6 +36,7 @@
         </div>
         <div class="puzzle" id="puzzle" aria-label="Puzzle de 12 morceaux"></div>
         <div class="toast" id="toast" role="status" aria-live="polite"></div>
+        <button type="button" class="abandon-button" id="abandon-btn">← Abandonner</button>
       </section>
 
       <section class="screen screen-result" id="screen-lost" aria-label="Temps écoulé" hidden>
@@ -62,7 +63,7 @@
   </div>
 
   <div class="scanner-modal" id="scanner-modal" role="dialog" aria-modal="true" aria-label="Scanner un QR code" hidden>
-    <div class="scanner-topbar"><strong>📷 Scanner</strong><button id="close-scanner" type="button" aria-label="Fermer l'appareil photo">✕</button></div>
+    <div class="scanner-topbar"><strong>📷 Scanner</strong><div class="scanner-actions"><button id="abandon-from-scanner" class="scanner-abandon" type="button">Abandonner</button><button id="close-scanner" type="button" aria-label="Fermer l'appareil photo">✕</button></div></div>
     <div class="scanner-frame"><div id="reader"></div></div>
     <p id="scanner-status" class="scanner-status" role="status" aria-live="polite">Ouverture de l'appareil photo…</p>
     <button type="button" id="retry-camera" class="retry-button" hidden>📷 Autoriser l’appareil photo</button>
