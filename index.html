@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#103b42">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cherche & COURS">
+  <meta name="description" content="Jeu de Noël : Cherche, trouve et ...COURS !">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./style.css">
+  <title>Cherche, trouve et ...COURS !</title>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="holiday-lights" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="snow snow-a" aria-hidden="true">✳</div><div class="snow snow-b" aria-hidden="true">❄</div><div class="snow snow-c" aria-hidden="true">✳</div>
+    <main class="panel">
+      <section class="screen screen-home" id="screen-home" aria-label="Accueil">
+        <div class="ribbon" aria-hidden="true">🎄 &nbsp; ✨ &nbsp; 🎁</div>
+        <h1>Cherche,<br>trouve et<br><span class="title-final">...COURS&nbsp;!</span></h1>
+        <button type="button" class="big-button" id="start-btn">DÉMARRER <span aria-hidden="true">➜</span></button>
+      </section>
+
+      <section class="screen screen-game" id="screen-game" aria-label="Puzzle" hidden>
+        <div class="game-stats">
+          <div class="timer" id="timer" role="timer" aria-label="Temps restant">03:00</div>
+          <div class="progress"><span id="progress-count">0</span><span class="progress-separator"> / 12</span> <span aria-hidden="true">🧩</span></div>
+        </div>
+        <div class="puzzle" id="puzzle" aria-label="Puzzle de 12 morceaux"></div>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="screen screen-result" id="screen-lost" aria-label="Temps écoulé" hidden>
+        <div class="result-decoration" aria-hidden="true">⏰ 🎅 ⏰</div>
+        <h2>Ho ho ho.<br><span>Trop tard.</span></h2>
+        <p class="failure-text">T'es pas nul.<br>Juste pas doué!!!</p>
+        <p class="failure-again">RECOMMENCE.</p>
+        <button type="button" class="big-button" id="restart-btn">REDÉMARRER <span aria-hidden="true">↻</span></button>
+      </section>
+
+      <section class="screen screen-win" id="screen-win" aria-label="Réussite" hidden>
+        <img class="santa-complete" src="./pere-noel.png" alt="Père Noël souriant avec son déguisement usé">
+        <h2>Tu as perdu<br><span>429 kcal&nbsp;!</span></h2>
+        <button type="button" class="big-button" id="thanks-btn">Merci Père Noël <span aria-hidden="true">🎅</span></button>
+      </section>
+
+      <section class="screen screen-clue" id="screen-clue" aria-label="Indice suivant" hidden>
+        <div class="clue-ornament" aria-hidden="true">🎁 ✨ 🎄</div>
+        <div class="clue-card">
+          <p>Va fouiller discrètement à l'endroit moelleux d'où l'on peut admirer les gens attendre dans le froid derrière la porte d'entrée. Sois discret!</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="scanner-modal" id="scanner-modal" role="dialog" aria-modal="true" aria-label="Scanner un QR code" hidden>
+    <div class="scanner-topbar"><strong>📷 Scanner</strong><button id="close-scanner" type="button" aria-label="Fermer l'appareil photo">✕</button></div>
+    <div class="scanner-frame"><div id="reader"></div></div>
+    <p id="scanner-status" class="scanner-status" role="status" aria-live="polite">Ouverture de l'appareil photo…</p>
+    <button type="button" id="retry-camera" class="retry-button" hidden>Réessayer</button>
+  </div>
+
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <script defer src="./app.js"></script>
+</body>
+</html>

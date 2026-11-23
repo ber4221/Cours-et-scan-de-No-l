@@ -1,0 +1,46 @@
+CHERCHE, TROUVE ET ...COURS ! — VERSION 1
+=====================================
+
+APPLICATION
+-----------
+Les fichiers de ce dossier constituent une application web installable (PWA).
+Pour la publier : placer tous les fichiers et le dossier icons à la racine
+ d'un dépôt GitHub puis activer GitHub Pages sur la branche principale, / (root).
+L'adresse publique HTTPS sera alors le lien à transformer en QR code de départ.
+Ne pas utiliser un simple double-clic sur index.html pour tester la caméra :
+le scanner nécessite une page HTTPS (GitHub Pages) ou localhost.
+
+UTILISATION
+-----------
+Écran d'accueil : titre et bouton DÉMARRER.
+12 QR codes différents, scannables dans n'importe quel ordre.
+Le chrono dure 3 minutes. Cliquer sur une case ouvre la caméra.
+Un code reconnu ferme la caméra et révèle son morceau du Père Noël.
+Une seconde lecture du même code n'ajoute pas de morceau.
+À 12/12 : message des 429 kcal et bouton Merci Père Noël, puis indice.
+À 0:00 : écran de défaite et essais illimités via REDÉMARRER.
+
+QR CODES À IMPRIMER
+------------------
+La planche « QR_codes_12_a_cacher.png » fournie séparément correspond
+EXACTEMENT aux codes internes de cette version du jeu. Ne pas modifier
+les codes dans app.js ni utiliser des codes d'une autre version du jeu.
+La planche ne doit PAS être mise en ligne sur GitHub Pages.
+
+COMPATIBILITÉ / TESTS
+---------------------
+L'application cible Android (Chrome) et iPhone (Safari).
+La caméra réclamera une autorisation lors du premier scan.
+Le jeu reste ouvert dans le navigateur, sans installation obligatoire.
+Si ajout à l'écran d'accueil, on le supprime comme un raccourci/app web.
+Le premier chargement requiert Internet. Les ressources sont mises en cache
+pour les utilisations suivantes, mais les permissions et comportements
+hors ligne doivent être vérifiés sur les téléphones utilisés.
+
+La détection des QR codes utilise « html5-qrcode » 2.3.8, Apache 2.0,
+chargé via cdnjs (et mis en cache après la première connexion).
+Une détection native de secours est utilisée si disponible.
+Aucun envoi des images de la caméra à un serveur.
+
+Personnalisation du texte : index.html.
+Durée : constante GAME_MS dans app.js.
