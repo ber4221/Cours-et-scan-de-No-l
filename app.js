@@ -28,6 +28,7 @@ let scannerSequence = 0;
 let scanTaken = false;
 let toastTimer = null;
 let wakeLock = null;
+let cameraPermissionGranted = false;
 
 function save() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({phase, deadline, found: [...found], savedAt: Date.now()})); } catch (_) { }
@@ -146,6 +147,42 @@ function toast(message) {
 }
 function setScannerStatus(message) { $('scanner-status').textContent = message; }
 
+// On demande l'accès avant le départ, pour ne pas perdre de secondes.
+// Un site ne peut pas forcer une permission déjà bloquée par le navigateur.
+function cameraPermissionHelp() {
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    return 'Caméra bloquée. Dans Safari, ouvre les réglages de ce site, puis Caméra → Autoriser. Reviens ensuite ici.';
+  }
+  return 'Caméra bloquée. Dans le navigateur, ouvre Paramètres du site → Caméra → Autoriser, puis réessaie.';
+}
+function setCameraMessage(message, isError = false) {
+  const help = $('camera-help');
+  help.hidden = !message;
+  help.textContent = message;
+  help.classList.toggle('error', isError);
+}
+async function requestCameraPermission() {
+  const button = $('allow-camera');
+  button.disabled = true;
+  setCameraMessage('Demande d’autorisation…');
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera API indisponible');
+    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    stream.getTracks().forEach(track => track.stop());
+    cameraPermissionGranted = true;
+    button.hidden = true;
+    setCameraMessage('✓ Appareil photo autorisé. Tu peux démarrer !');
+    return true;
+  } catch (error) {
+    cameraPermissionGranted = false;
+    setCameraMessage(cameraPermissionHelp(), true);
+    return false;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+
 function acceptScan(rawText, sequence) {
   if (phase !== 'game' || sequence !== scannerSequence || scanTaken) return;
   if (timeLeft() <= 0) { lose(); return; }
@@ -230,7 +267,7 @@ async function openScanner() {
     if (sequence !== scannerSequence) return;
     if (activeScanner) { const old = activeScanner; activeScanner = null; await stopEngine(old); }
     if (sequence !== scannerSequence) return;
-    setScannerStatus('Impossible d’ouvrir la caméra. Autorise son accès dans ton navigateur puis réessaie.');
+    setScannerStatus(cameraPermissionHelp());
     $('retry-camera').hidden = false;
   }
 }
@@ -259,11 +296,29 @@ function closeScanner() {
   // Le scanner est stoppé avant le prochain déclenchement par l'utilisateur.
   return stopEngine(old);
 }
-$('start-btn').addEventListener('click', newGame);
+// Même si le joueur appuie directement sur DÉMARRER, l'autorisation est
+// demandée avant de lancer les 3 minutes (sans perdre de temps sur le chrono).
+async function startWhenCameraReady() {
+  if (!cameraPermissionGranted && !await requestCameraPermission()) return;
+  newGame();
+}
+$('start-btn').addEventListener('click', startWhenCameraReady);
+$('allow-camera').addEventListener('click', requestCameraPermission);
 $('restart-btn').addEventListener('click', newGame);
 $('thanks-btn').addEventListener('click', showClue);
 $('close-scanner').addEventListener('click', closeScanner);
-$('retry-camera').addEventListener('click', async () => {await closeScanner(); openScanner();});
+$('retry-camera').addEventListener('click', async () => {
+  const button = $('retry-camera');
+  button.disabled = true;
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera API indisponible');
+    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    stream.getTracks().forEach(track => track.stop());
+    if (phase === 'game') { await closeScanner(); await openScanner(); }
+  } catch (_) {
+    setScannerStatus(cameraPermissionHelp());
+  } finally { button.disabled = false; }
+});
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && phase === 'game') {
     renderTimer();

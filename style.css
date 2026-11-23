@@ -15,3 +15,13 @@
 @keyframes pulse{to{transform:scale(1.05)}}@keyframes reveal{from{opacity:.4;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
 @media(max-height:720px){.app-shell{padding-top:34px;padding-bottom:9px}.panel{min-height:0;padding:16px 12px}.screen-home h1{margin-bottom:30px}.ribbon{margin-bottom:15px}.game-stats{margin-bottom:9px}.timer{font-size:30px;padding:6px 10px}.puzzle{max-width:min(calc((100dvh - 185px)*1199/1312),400px)}.result-decoration{margin:0}.failure-again{margin-bottom:25px}}
 @media(prefers-reduced-motion:reduce){.timer.danger,.puzzle-tile.revealed{animation:none}}
+
+/* Préautorisation de la caméra, AVANT le début du chronomètre. */
+.camera-setup{display:flex;flex-direction:column;align-items:center;gap:9px;margin:0 auto 17px;max-width:340px}
+.camera-button{display:inline-flex;align-items:center;justify-content:center;width:100%;max-width:310px;min-height:48px;padding:10px 14px;border:2px solid #a8bdb5;border-radius:13px;background:#f0f6ef;color:#155c50;font-weight:900;font-size:clamp(14px,3.8vw,17px);box-shadow:0 3px 7px #1548331a}
+.camera-button:active{background:#d6efe4}
+.camera-button:disabled{opacity:.65;cursor:wait}
+.camera-button:focus-visible,.retry-button:focus-visible{outline:3px solid #ecb451;outline-offset:3px}
+.camera-help{font-weight:800;color:#155c50;font-size:13px;line-height:1.42;margin:0 auto;white-space:pre-line}
+.camera-help.error{color:#a42c36}
+@media(max-height:720px){.camera-setup{margin-bottom:12px}.camera-button{min-height:42px}}
