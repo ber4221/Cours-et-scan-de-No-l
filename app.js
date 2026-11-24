@@ -28,7 +28,6 @@ let scannerSequence = 0;
 let scanTaken = false;
 let toastTimer = null;
 let wakeLock = null;
-let cameraPermissionGranted = false;
 
 function save() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({phase, deadline, found: [...found], savedAt: Date.now()})); } catch (_) { }
@@ -162,13 +161,14 @@ function toast(message) {
 }
 function setScannerStatus(message) { $('scanner-status').textContent = message; }
 
-// On demande l'accès avant le départ, pour ne pas perdre de secondes.
-// Un site ne peut pas forcer une permission déjà bloquée par le navigateur.
+// Sur DÉMARRER, le navigateur affiche sa boîte d'autorisation native si
+// l'accès à la caméra n'a pas encore été autorisé ou refusé définitivement.
+// Les applications Web ne peuvent pas accorder une autorisation bloquée.
 function cameraPermissionHelp() {
   if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    return 'Caméra bloquée. Dans Safari, ouvre les réglages de ce site, puis Caméra → Autoriser. Reviens ensuite ici.';
+    return 'L’appareil photo est bloqué. Dans les réglages du site de ton navigateur, choisis Caméra → Autoriser, puis réessaie.';
   }
-  return 'Caméra bloquée. Dans le navigateur, ouvre Paramètres du site → Caméra → Autoriser, puis réessaie.';
+  return 'L’appareil photo est bloqué. Dans les paramètres du site de ton navigateur, choisis Caméra → Autoriser, puis réessaie.';
 }
 function setCameraMessage(message, isError = false) {
   const help = $('camera-help');
@@ -176,27 +176,6 @@ function setCameraMessage(message, isError = false) {
   help.textContent = message;
   help.classList.toggle('error', isError);
 }
-async function requestCameraPermission() {
-  const button = $('allow-camera');
-  button.disabled = true;
-  setCameraMessage('Demande d’autorisation…');
-  try {
-    if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera API indisponible');
-    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
-    stream.getTracks().forEach(track => track.stop());
-    cameraPermissionGranted = true;
-    button.hidden = true;
-    setCameraMessage('✓ Appareil photo autorisé. Tu peux démarrer !');
-    return true;
-  } catch (error) {
-    cameraPermissionGranted = false;
-    setCameraMessage(cameraPermissionHelp(), true);
-    return false;
-  } finally {
-    button.disabled = false;
-  }
-}
-
 
 function acceptScan(rawText, sequence) {
   if (phase !== 'game' || sequence !== scannerSequence || scanTaken) return;
@@ -311,14 +290,37 @@ function closeScanner() {
   // Le scanner est stoppé avant le prochain déclenchement par l'utilisateur.
   return stopEngine(old);
 }
-// Même si le joueur appuie directement sur DÉMARRER, l'autorisation est
-// demandée avant de lancer les 3 minutes (sans perdre de temps sur le chrono).
+// Un seul bouton DÉMARRER : la demande native « Autoriser la caméra ? »
+// précède le lancement du chronomètre, et ne compte pas dans les 3 minutes.
 async function startWhenCameraReady() {
-  if (!cameraPermissionGranted && !await requestCameraPermission()) return;
-  newGame();
+  if (phase !== 'home') return;
+  const button = $('start-btn');
+  if (button.disabled) return;
+  button.disabled = true;
+  setCameraMessage('');
+  try {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error('Camera API indisponible');
+    }
+    // Appel direct depuis l'action de l'utilisateur : le navigateur gère le
+    // vrai consentement « Autoriser / Refuser », sans écran supplémentaire.
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false
+    });
+    stream.getTracks().forEach(track => track.stop());
+    if (phase === 'home') newGame();
+  } catch (error) {
+    if (error?.name === 'NotAllowedError' || error?.name === 'PermissionDeniedError') {
+      setCameraMessage(cameraPermissionHelp(), true);
+    } else {
+      setCameraMessage('Impossible d’ouvrir l’appareil photo. Ouvre ce jeu dans Safari ou Chrome, puis réessaie.', true);
+    }
+  } finally {
+    button.disabled = false;
+  }
 }
 $('start-btn').addEventListener('click', startWhenCameraReady);
-$('allow-camera').addEventListener('click', requestCameraPermission);
 $('restart-btn').addEventListener('click', newGame);
 $('abandon-btn').addEventListener('click', abandonGame);
 $('abandon-from-scanner').addEventListener('click', abandonGame);

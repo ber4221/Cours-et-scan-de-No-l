@@ -33,3 +33,7 @@
 .scanner-actions{display:flex;align-items:center;gap:12px}
 .scanner-abandon{min-height:40px;padding:7px 12px;border:1px solid #ffc7c5;border-radius:11px;background:#9b303c;color:white;font-size:14px;font-weight:900}
 @media(max-height:620px){.abandon-button{min-height:34px;padding:4px 14px}}
+
+/* V4 : un seul bouton de départ ; message uniquement en cas de refus. */
+.screen-home > .camera-help { margin: 14px auto 0; max-width: 330px; }
+.big-button:disabled { opacity: .75; cursor: wait; }
