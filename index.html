@@ -59,6 +59,12 @@
     </main>
   </div>
 
+  <!-- Confirmation immédiate d'un QR code valide. Ne bloque pas les touches. -->
+  <div class="scan-success" id="scan-success" role="status" aria-live="polite" aria-label="QR code validé" hidden>
+    <div class="scan-success-badge" aria-hidden="true">✓</div>
+    <span class="visually-hidden">QR code validé</span>
+  </div>
+
   <div class="scanner-modal" id="scanner-modal" role="dialog" aria-modal="true" aria-label="Scanner un QR code" hidden>
     <div class="scanner-topbar"><strong>📷 Scanner</strong><div class="scanner-actions"><button id="abandon-from-scanner" class="scanner-abandon" type="button">Abandonner</button><button id="close-scanner" type="button" aria-label="Fermer l'appareil photo">✕</button></div></div>
     <div class="scanner-frame"><div id="reader"></div></div>

@@ -28,6 +28,58 @@ let scannerSequence = 0;
 let scanTaken = false;
 let toastTimer = null;
 let wakeLock = null;
+let successTimer = null;
+let successAudioContext = null;
+
+// Réveiller Web Audio au contact d'un bouton : requis par les navigateurs mobiles.
+// Le son est entièrement synthétisé sur l'appareil, sans fichier ni réseau.
+function prepareSuccessAudio() {
+  try {
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (!Audio) return;
+    if (!successAudioContext) successAudioContext = new Audio();
+    if (successAudioContext.state === 'suspended') {
+      successAudioContext.resume().catch(() => {});
+    }
+  } catch (_) { /* Un téléphone en silencieux reste pleinement jouable. */ }
+}
+function playSuccessSound() {
+  try {
+    prepareSuccessAudio();
+    const ctx = successAudioContext;
+    if (!ctx || ctx.state !== 'running') return;
+    const start = ctx.currentTime + .01;
+    // Un petit « ta-ding » ascendant, volontairement bref et agréable.
+    for (const [pitch, delay, duration] of [[659.25, 0, .13], [987.77, .13, .32]]) {
+      const osc = ctx.createOscillator();
+      const envelope = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch, start + delay);
+      envelope.gain.setValueAtTime(.0001, start + delay);
+      envelope.gain.exponentialRampToValueAtTime(.21, start + delay + .02);
+      envelope.gain.exponentialRampToValueAtTime(.0001, start + delay + duration);
+      osc.connect(envelope);
+      envelope.connect(ctx.destination);
+      osc.start(start + delay);
+      osc.stop(start + delay + duration + .015);
+    }
+  } catch (_) { /* Le visuel de validation fonctionne toujours sans audio. */ }
+}
+function clearSuccessCheck() {
+  if (successTimer !== null) clearTimeout(successTimer);
+  successTimer = null;
+  $('scan-success').hidden = true;
+}
+function showSuccessCheck(isLastPiece) {
+  clearSuccessCheck();
+  $('scan-success').hidden = false;
+  successTimer = setTimeout(() => {
+    successTimer = null;
+    $('scan-success').hidden = true;
+    // Au dernier QR code, on laisse d'abord voir le Père Noël entier et le ✓.
+    if (isLastPiece && phase === 'win') render();
+  }, 3000);
+}
 
 function save() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({phase, deadline, found: [...found], savedAt: Date.now()})); } catch (_) { }
@@ -104,6 +156,8 @@ async function releaseWakeLock() {
   wakeLock = null;
 }
 function newGame() {
+  prepareSuccessAudio();
+  clearSuccessCheck();
   scannerSequence++;
   stopTicker();
   found = new Set();
@@ -118,6 +172,7 @@ function newGame() {
 // On remet à zéro le temps et les morceaux pour le prochain départ.
 function abandonGame() {
   if (phase !== 'game') return;
+  clearSuccessCheck();
   closeScanner();
   stopTicker();
   releaseWakeLock();
@@ -131,6 +186,7 @@ function abandonGame() {
 }
 function lose() {
   if (phase !== 'game') return;
+  clearSuccessCheck();
   phase = 'lost';
   stopTicker();
   releaseWakeLock();
@@ -138,14 +194,16 @@ function lose() {
   closeScanner();
   render();
 }
-function win() {
+function win(afterScan = false) {
   if (phase !== 'game') return;
   phase = 'win';
   stopTicker();
   releaseWakeLock();
   save();
   closeScanner();
-  render();
+  // Sur le dernier scan, garder le puzzle complet à l'écran pendant les 3 s du ✓.
+  // Le résultat est déjà enregistré : actualiser la page n'annule pas la victoire.
+  if (!afterScan) render();
 }
 function showClue() {
   if (phase !== 'win') return;
@@ -194,8 +252,11 @@ function acceptScan(rawText, sequence) {
   found.add(index);
   save();
   renderPuzzle();
-  if (found.size === 12) win();
-  else closeScanner();
+  closeScanner();
+  // Scanner fermé, le morceau est révélé ; on confirme pendant exactement 3 s.
+  playSuccessSound();
+  if (found.size === 12) win(true);
+  showSuccessCheck(found.size === 12);
 }
 
 async function startWithHtml5Qrcode(sequence) {
@@ -245,6 +306,9 @@ async function startWithNativeDetector(sequence) {
 }
 async function openScanner() {
   if (phase !== 'game') return;
+  // Le joueur peut repartir scanner immédiatement : aucune attente imposée.
+  clearSuccessCheck();
+  prepareSuccessAudio();
   if (timeLeft() <= 0) { lose(); return; }
   if (!$('scanner-modal').hidden) return;
   $('scanner-modal').hidden = false;
@@ -294,6 +358,7 @@ function closeScanner() {
 // précède le lancement du chronomètre, et ne compte pas dans les 3 minutes.
 async function startWhenCameraReady() {
   if (phase !== 'home') return;
+  prepareSuccessAudio();
   const button = $('start-btn');
   if (button.disabled) return;
   button.disabled = true;
