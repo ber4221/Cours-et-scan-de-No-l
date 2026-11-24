@@ -44,3 +44,9 @@
 .scan-success-badge {display:flex;align-items:center;justify-content:center;width:clamp(155px,43vw,218px);height:clamp(155px,43vw,218px);border:9px solid #159347;border-radius:50%;background:#f9fff8;color:#168d3e;font-family:Arial,sans-serif;font-size:clamp(132px,37vw,188px);font-weight:900;line-height:1;text-shadow:0 4px 2px #b5e5be;box-shadow:0 12px 40px rgba(0,0,0,.3),0 0 0 10px rgba(255,255,255,.3);animation:scan-confirm-pop .22s ease-out both}
 @keyframes scan-confirm-pop {from{opacity:0;transform:scale(.55)}to{opacity:1;transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){.scan-success-badge{animation:none}}
+
+/* V6 — retour à l'accueil après une partie réussie, sans effacer l'indice avant lecture. */
+.reset-button{display:inline-flex;align-items:center;justify-content:center;min-height:49px;margin:24px auto 2px;padding:10px 18px;border:2px solid #94ada0;border-radius:14px;background:#eaf2eb;color:#145746;font-size:clamp(15px,4.2vw,18px);font-weight:1000;box-shadow:0 3px 7px #134c3b20}
+.reset-button:active{background:#d1e6d8}
+.reset-button:focus-visible{outline:3px solid #e7a63f;outline-offset:3px}
+@media(max-height:680px){.screen-clue .clue-ornament{margin-bottom:12px}.screen-clue .clue-card{padding:17px 13px}.reset-button{margin-top:16px}}

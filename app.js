@@ -211,6 +211,23 @@ function showClue() {
   save();
   render();
 }
+// Après la réussite et la lecture de l'indice, remettre le jeu à zéro.
+// Revenir à l'accueil sans relancer le chrono ni redemander la caméra.
+function resetAfterWin() {
+  if (phase !== 'clue') return;
+  clearSuccessCheck();
+  closeScanner();
+  stopTicker();
+  releaseWakeLock();
+  clearTimeout(toastTimer);
+  $('toast').textContent = '';
+  found = new Set();
+  deadline = 0;
+  phase = 'home';
+  setCameraMessage('');
+  save();
+  render();
+}
 function toast(message) {
   const node = $('toast');
   node.textContent = message;
@@ -390,6 +407,7 @@ $('restart-btn').addEventListener('click', newGame);
 $('abandon-btn').addEventListener('click', abandonGame);
 $('abandon-from-scanner').addEventListener('click', abandonGame);
 $('thanks-btn').addEventListener('click', showClue);
+$('reset-after-win-btn').addEventListener('click', resetAfterWin);
 $('close-scanner').addEventListener('click', closeScanner);
 $('retry-camera').addEventListener('click', async () => {
   const button = $('retry-camera');
